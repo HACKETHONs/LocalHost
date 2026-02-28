@@ -1,21 +1,23 @@
-spring.application.name=backend
+server:
+  port: 8081
+
 spring:
+  application:
+    name: backend
+
   datasource:
-    url: jdbc:postgresql://localhost:5432/your_db_name
+    url: jdbc:postgresql://localhost:5432/Diet
     username: postgres
-    password: your_password
+    password: Maya@8857
     driver-class-name: org.postgresql.Driver
 
   flyway:
     enabled: true
-    # Ensures Flyway can start even if the DB already has existing tables
-    baseline-on-migrate: true
-    # Optional: location of your migration scripts
+    baseline-on-migrate: false
     locations: classpath:db/migration
 
   jpa:
     hibernate:
-      # 'validate' ensures your Java entities match the Flyway-created schema
       ddl-auto: validate
     show-sql: true
     properties:
