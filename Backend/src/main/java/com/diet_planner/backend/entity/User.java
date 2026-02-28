@@ -23,6 +23,9 @@ public class User {
     @Column(unique = true)
     private String email;
 
+    @Column(name = "password_hash")
+    private String passwordHash;
+
     private Integer age;
 
     @Column(name = "height_cm")

@@ -9,9 +9,12 @@ import com.diet_planner.backend.entity.User;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientResponseException;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -20,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class AiMealPlanAdvisorService {
 
@@ -69,8 +73,65 @@ public class AiMealPlanAdvisorService {
                 .build();
     }
 
+    /**
+     * General chat method for the front-end chatbot.  The system prompt is more conversational and
+     * can handle open-ended questions such as "give me some recipe ideas" or "what are my options?".
+     */
+    public String chat(String message) {
+        String systemPrompt = "You are a friendly nutrition assistant for the Diet Planner app. " +
+                "Answer user questions in plain text.  If the user asks for recipes or options, " +
+                "include a few suggestions with cost, protein and calories when possible. " +
+                "Keep responses short and helpful.";
+        String reply = callGroqWithSystem(systemPrompt, message);
+        if (!StringUtils.hasText(reply)) {
+            return "AI assistant is temporarily unavailable. Please check GROQ_API_KEY and try again.";
+        }
+        return reply;
+    }
+
+    private String callGroqWithSystem(String systemPrompt, String userPrompt) {
+        try {
+            if (!StringUtils.hasText(groqProperties.getApiKey())) {
+                log.warn("Groq API key is missing. Set GROQ_API_KEY to enable chatbot responses.");
+                return "";
+            }
+
+            Map<String, Object> payload = new HashMap<>();
+            payload.put("model", groqProperties.getModel());
+            payload.put("temperature", groqProperties.getTemperature());
+            payload.put("messages", List.of(
+                    Map.of("role", "system", "content", systemPrompt),
+                    Map.of("role", "user", "content", userPrompt)
+            ));
+
+            JsonNode response = groqRestClient.post()
+                    .uri("/v1/chat/completions")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(payload)
+                    .retrieve()
+                    .body(JsonNode.class);
+
+            if (response == null) {
+                return "";
+            }
+            return response.path("choices").path(0).path("message").path("content").asText("");
+        } catch (RestClientResponseException ex) {
+            log.error("Groq chat request failed. status={} body={}", ex.getStatusCode(), ex.getResponseBodyAsString(), ex);
+            return "";
+        } catch (Exception ex) {
+            log.error("Groq chat request failed with unexpected error", ex);
+            return "";
+        }
+    }
+
+
     private String callGroq(String userPrompt) {
         try {
+            if (!StringUtils.hasText(groqProperties.getApiKey())) {
+                log.warn("Groq API key is missing. Set GROQ_API_KEY to enable AI meal advice.");
+                return "{}";
+            }
+
             Map<String, Object> payload = new HashMap<>();
             payload.put("model", groqProperties.getModel());
             payload.put("temperature", groqProperties.getTemperature());
@@ -90,7 +151,11 @@ public class AiMealPlanAdvisorService {
                 return "{}";
             }
             return response.path("choices").path(0).path("message").path("content").asText("{}");
+        } catch (RestClientResponseException ex) {
+            log.error("Groq advice request failed. status={} body={}", ex.getStatusCode(), ex.getResponseBodyAsString(), ex);
+            return "{}";
         } catch (Exception ex) {
+            log.error("Groq advice request failed with unexpected error", ex);
             return "{}";
         }
     }

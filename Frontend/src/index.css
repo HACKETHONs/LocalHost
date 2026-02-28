@@ -39,7 +39,7 @@ button, input, select, textarea, .react-calendar {
 /* 6. CUSTOM CALENDAR STYLING (ICY BLUE THEME) */
 .react-calendar {
   width: 100% !important;
-  max-width: 950px;
+  max-width: 100% !important;
   background: var(--icy-blue) !important;
   border: 3px solid var(--midnight-indigo) !important;
   border-radius: 32px;
@@ -66,6 +66,33 @@ button, input, select, textarea, .react-calendar {
   color: white !important;
   box-shadow: 0px 4px 10px rgba(255, 111, 97, 0.4);
   border: none !important;
+}
+
+.react-calendar__tile.has-plan-day {
+  position: relative;
+}
+
+.react-calendar__tile.has-plan-day::after {
+  content: "";
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-radius: 9999px;
+  background: var(--midnight-indigo);
+  bottom: 8px;
+  right: 8px;
+}
+
+.react-calendar__tile.has-sticky-note::before {
+  content: "";
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-radius: 9999px;
+  background: #facc15;
+  top: 8px;
+  right: 8px;
+  border: 1px solid #212842;
 }
 
 /* 7. CUSTOM SCROLLBAR */

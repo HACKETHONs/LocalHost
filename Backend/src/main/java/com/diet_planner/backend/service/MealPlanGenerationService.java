@@ -18,6 +18,10 @@ public class MealPlanGenerationService {
     private final MealPlanRepository mealPlanRepository;
 
     public MealPlan generateMonthlyPlan(UUID userId, int month, int year) {
+        var existing = mealPlanRepository.findTopByUserIdAndMonthAndYearOrderByVersionDesc(userId, month, year);
+        if (existing.isPresent()) {
+            return existing.get();
+        }
 
         User user = userService.getById(userId);
         MacroGoalRule rule = macroRuleService.getRuleForGoal(user.getGoal());

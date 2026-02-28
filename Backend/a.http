@@ -1,16 +1,9 @@
-POST http://localhost:8081/api/users/register
+POST http://localhost:8081/api/users/login
 Content-Type: application/json
 
 {
-  "name": "Prajwal",
   "email": "prajwal@test.com",
-  "age": 22,
-  "heightCm": 172,
-  "weightKg": 68,
-  "goal": "WEIGHT_GAIN",
-  "mealsPerDay": 3,
-  "monthlyBudget": 3000,
-  "hasCookingAppliance": false
+  "password": "your-password"
 }
 
 ###

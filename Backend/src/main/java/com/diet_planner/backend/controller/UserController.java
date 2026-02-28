@@ -1,6 +1,7 @@
 package com.diet_planner.backend.controller;
 
 import com.diet_planner.backend.dto.request.UserRegistrationRequest;
+import com.diet_planner.backend.dto.request.UserLoginRequest;
 import com.diet_planner.backend.dto.response.UserResponse;
 import com.diet_planner.backend.entity.User;
 import com.diet_planner.backend.service.UserService;
@@ -22,7 +23,7 @@ public class UserController {
 
         User user = User.builder()
                 .name(request.getName())
-                .email(request.getEmail())
+                .email(request.getEmail().trim().toLowerCase())
                 .age(request.getAge())
                 .heightCm(request.getHeightCm())
                 .weightKg(request.getWeightKg())
@@ -32,16 +33,15 @@ public class UserController {
                 .hasCookingAppliance(request.getHasCookingAppliance())
                 .build();
 
-        User saved = userService.register(user);
+        User saved = userService.register(user, request.getPassword());
 
-        return UserResponse.builder()
-                .id(saved.getId())
-                .name(saved.getName())
-                .email(saved.getEmail())
-                .goal(saved.getGoal())
-                .mealsPerDay(saved.getMealsPerDay())
-                .monthlyBudget(saved.getMonthlyBudget())
-                .build();
+        return toResponse(saved);
+    }
+
+    @PostMapping("/login")
+    public UserResponse login(@Valid @RequestBody UserLoginRequest request) {
+        User user = userService.login(request.getEmail().trim().toLowerCase(), request.getPassword());
+        return toResponse(user);
     }
 
     @GetMapping("/{userId}")
@@ -49,6 +49,10 @@ public class UserController {
 
         User user = userService.getById(userId);
 
+        return toResponse(user);
+    }
+
+    private UserResponse toResponse(User user) {
         return UserResponse.builder()
                 .id(user.getId())
                 .name(user.getName())
