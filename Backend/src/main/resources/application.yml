@@ -6,9 +6,9 @@ spring:
     name: backend
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/Diet
-    username: postgres
-    password: Maya@8857
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/Diet}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:}
     driver-class-name: org.postgresql.Driver
 
   flyway:
@@ -23,3 +23,10 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
+
+groq:
+  ai:
+    api-key: ${GROQ_API_KEY:${GROK_API_KEY:}}
+    base-url: ${GROQ_BASE_URL:${GROK_BASE_URL:https://api.groq.com/openai}}
+    model: ${GROQ_MODEL:${GROK_MODEL:llama-3.3-70b-versatile}}
+    temperature: ${GROQ_TEMPERATURE:${GROK_TEMPERATURE:0.2}}

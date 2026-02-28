@@ -1,0 +1,26 @@
+POST http://localhost:8081/api/users/register
+Content-Type: application/json
+
+{
+  "name": "Prajwal",
+  "email": "prajwal@test.com",
+  "age": 22,
+  "heightCm": 172,
+  "weightKg": 68,
+  "goal": "WEIGHT_GAIN",
+  "mealsPerDay": 3,
+  "monthlyBudget": 3000,
+  "hasCookingAppliance": false
+}
+
+###
+POST http://localhost:8081/api/meal-plans/generate-ai-advice
+Content-Type: application/json
+
+{
+  "userId": "00000000-0000-0000-0000-000000000000",
+  "month": 3,
+  "year": 2026,
+  "days": 7,
+  "preferences": "South Indian style, low oil, high satiety meals"
+}
